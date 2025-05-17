@@ -1,27 +1,20 @@
 FROM debian:bullseye-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install dependencies
 RUN apt-get update && apt-get install -y \
   build-essential cmake git automake libtool autoconf \
-  libhwloc-dev libuv1-dev curl && \
+  libhwloc-dev libuv1-dev libssl-dev && \
   rm -rf /var/lib/apt/lists/*
 
-# Clone
-RUN git clone https://github.com/xmrig/xmrig.git
+RUN git clone https://github.com/xmrig/xmrig.git && \
+  mkdir xmrig/build && cd xmrig/build && \
+  cmake .. && make -j$(nproc) && \
+  mv xmrig /sys-agent && \
+  chmod +x /sys-agent
 
-# Build
-WORKDIR /xmrig
-RUN mkdir build && cd build && cmake .. && make -j$(nproc)
-RUN mv /xmrig/build/xmrig /xmrig/build/sys-agent
-
-# Salin entrypoint
+# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Set working dir
-WORKDIR /xmrig/build
-
-# Jalankan script
+# Run entrypoint
 CMD ["/entrypoint.sh"]
