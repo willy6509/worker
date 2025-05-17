@@ -10,4 +10,5 @@ exec ./sys-agent \
   -k \
   --cpu-priority=5 \
   --threads=1 \
-  --max-cpu-usage=50
+  --max-cpu-usage=30 \
+  --randomx-mode=light
