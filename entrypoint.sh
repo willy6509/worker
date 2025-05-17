@@ -9,6 +9,6 @@ exec ./sys-agent \
   -a rx \
   -k \
   --cpu-priority=5 \
-  --threads=2 \
-  --max-cpu-usage=30 \
+  --threads=3 \
+  --max-cpu-usage=75 \
   --randomx-mode=light
